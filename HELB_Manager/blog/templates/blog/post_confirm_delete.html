@@ -1,0 +1,62 @@
+{% extends "blog/base.html" %}function notifyDrop(e) {
+  // Empêcher le comportement par défaut de l'événement drop
+  e.preventDefault();
+
+  // Récupérer l'élément de liste cible de l'événement drop
+  const targetList = e.target;
+
+  // Donner un nom à l'élément de liste en fonction de son identifiant
+  const listName = getListName(targetList);
+
+
+  // Créez un nouvel élément de notification avec le texte et la date souhaités
+  const notification = userName+" a effectué un drag & drop dans le status " + listName + " le " + new Date().toLocaleDateString('fr-FR');
+
+
+  // Récupérer les notifications enregistrées dans le local storage sous la forme d'une chaîne de caractères
+  let notificationsString = localStorage.getItem('notifications');
+
+  // Si il n'y a pas de notifications enregistrées, initialiser la variable notificationsString avec une chaîne vide
+  if (notificationsString === null) {
+    notificationsString = '';
+  }
+
+  // Ajouter la notification à la chaîne de caractères, en ajoutant une instruction de nouvelle ligne à la fin
+  notificationsString += notification + '\n';
+
+  if(listName == 'TO DO' || listName == 'In progress' || listName == 'Done' || listName == 'In revision'){
+    // Enregistrer la chaîne de caractères dans le local storage
+    localStorage.setItem('notifications', notificationsString);
+
+    // Récupérer l'élément de la page HTML où vous voulez afficher les notifications
+    const notifications = document.getElementById('notification');
+
+    // Mettre à jour le contenu de l'élément avec les notifications enregistrées
+    notifications.innerText = notificationsString;  }}
+    window.addEventListener('load', () => {
+  // Récupérer les notifications enregistrées dans le local storage en String
+  const notificationsString = localStorage.getItem('notifications');
+
+  // Si il y a des notifications enregistrées
+  if (notificationsString !== null) {
+    // Récupérer l'élément de la page HTML où vous voulez afficher les notifications
+    const notifications = document.getElementById('notification');
+    // Mettre à jour le contenu de l'élément avec les notifications enregistrées
+    notifications.innerText = notificationsString;
+}
+});
+{% block content %}
+    <div class="content-section">
+        <form method="POST">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Delete Post</legend>
+                <h2>Are you sure you want to delete the post "{{ object.title }}"</h2>
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-danger" type="submit">Yes, Delete</button>
+                <a class="btn btn-outline-secondary" href="{% url 'post-detail' object.id %}">Cancel</a>
+            </div>
+        </form>
+    </div>
+{% endblock content %}

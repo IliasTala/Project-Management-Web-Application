@@ -1,0 +1,81 @@
+{% extends "blog/base.html" %}
+{% block content %}
+
+
+  <article class="media content-section">
+    <img class="rounded-circle article-img" src="{{ object.author.profile.image.url }}">
+    <div class="media-body">
+      <div class="article-metadata">
+        <a class="mr-2" href="{% url 'profile' %}">{{ object.author }}</a>
+        <small class="text-muted">{{ object.date_posted|date:"F d, Y" }}</small>
+        {% if object.author == user %}
+          <div>
+            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{% url 'post-update' object.id %}" onclick="updateProject()" >Update</a>
+            <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'post-delete' object.id %}">Delete</a>
+          </div>
+        {% endif %}
+      </div>
+
+      <h6 class="user-connected" >{{ user }}</h6>
+      <h2 class="article-title">{{ object.title }}</h2>
+      <h4 class="article-content">Project Chief : {{ object.author }}</h4>
+      <h5 class="article-content">Collaborator(s) : {{ object.list_collaborator }}</h5>
+    </div>
+        </div>
+
+    <!--  AFFICHAGE DES NOTIFICATIONS POUR LE CHEF DE PROJET ET LES CONTRIBUTEURS -->
+{% if object.author == user or user.username in object.list_collaborator %}
+    <div class="content-notification" id="notification-wrapper">
+        <h3>Notifications</h3>
+        <ul class="list-group">
+            <section id="notification"></section>
+          {% if object.author == user  %}
+          <button id="clear-notifications-button">Effacer les notifications</button>
+{% endif %}
+        </ul>
+        </p>
+    </div>
+{% endif %}
+
+  </article>
+
+
+
+<!--  AFFICHAGE DU DRAG & DROP POUR LE CHEF DE PROJET -->
+
+{% if object.author == user  %}
+  <div class="app">
+    <div class="lists">
+      <div class="list" ondrop="saveDraggedItemLocation(event)" id="list1">{{ post.status1 }}
+        {% for tasks in object.list_tasks %}
+        <div class="list-item" id="item-{{ forloop.counter }}" draggable="true">{{ tasks }}</div>
+        {% endfor %}
+      </div>
+      <div class="list" ondrop="saveDraggedItemLocation(event)" id="list2">{{ post.status2 }}</div>
+      <div class="list" ondrop="saveDraggedItemLocation(event)" id="list3">{{ post.status3 }}</div>
+      <div class="list" ondrop="saveDraggedItemLocation(event)" id="list4">{{ post.status4 }}</div>
+    </div>
+  </div>
+{% endif %}
+
+
+<!--  AFFICHAGE DU DRAG & DROP POUR LES COLLABORATEUR -->
+{% if object.author != user  %}
+<div class="app">
+    <div class="lists">
+      <div class="list" ondrop="saveDraggedItemLocation(event)" id="list1">{{ post.status1 }}
+
+        {% for task, collaborator in post.list_assigned_tasks %}
+          {% if collaborator == request.user.username %}
+            <div class="list-item" id="item-{{ forloop.counter }}" draggable="true">{{ task }}</div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <div class="list" ondrop="saveDraggedItemLocation(event)" id="list2">{{ post.status2 }}</div>
+      <div class="list" ondrop="saveDraggedItemLocation(event)" id="list3">{{ post.status3 }}</div>
+      <div class="list" ondrop="saveDraggedItemLocation(event)" id="list4">{{ post.status4 }}</div>
+    </div>
+  </div>
+{% endif %}
+
+{% endblock content %}

@@ -1,0 +1,85 @@
+{% extends "blog/base.html" %}
+{% block content %}
+
+
+<h6 class="user-connected" >{{ user }}</h6>
+
+
+<div id="chat" class="chat1"></div>
+        <form>
+            <input type="text" id="message" />
+            <button type="button" id="send">Envoyer</button>
+<button type="button" id="delete-btn">Supprimer le dernier message</button>
+        </form>
+
+
+
+<script>
+const userNameElement = document.querySelector('.user-connected');
+const userName = userNameElement.textContent;
+
+let input = document.getElementById("message");
+let chatDiv = document.getElementById("chat");
+
+// charger les messages du chat depuis le stockage local
+let messages = loadMessages();
+
+for (let i = 0; i < messages.length; i++) {
+  chatDiv.innerHTML += messages[i] + "<br>";
+}
+
+let sendButton = document.getElementById("send");
+sendButton.addEventListener("click", function() {
+  // recuperer le message et le nom du user
+  let message = input.value;
+  let date = new Date();
+  let time = date.toLocaleTimeString();
+
+  // affiche le message avec le nom du user et l'heure
+  let fullMessage = userName + " (" + time + ") : " + message;
+  chatDiv.innerHTML += fullMessage + "<br>";
+
+  // add le message au tab de messages et save les msg dans le stockage local
+  messages.push(fullMessage);
+  saveMessages(messages);
+});
+
+// fonction qui charge les msg du chat depuis le stockage local
+function loadMessages() {
+  return JSON.parse(localStorage.getItem("messages")) || [];
+}
+
+// fonction qui save les msg du chat dans le stockage local
+function saveMessages(messages) {
+  localStorage.setItem("messages", JSON.stringify(messages));
+}
+
+document.getElementById("delete-btn").addEventListener("click", function() {
+ // recuperer le dernier msg du tab de msg
+  let lastMessage = messages[messages.length - 1];
+
+  // extrait le nom du user qui a send le dernier msg
+  let lastMessageUsername = lastMessage.split(' (')[0];
+
+  // verification de si le nom du user actuel est le mm que celui qui a envoyer le dernier msg
+  if (lastMessageUsername === userName) {
+
+    messages.pop();
+    // save les msg màj dans le stockage local
+    saveMessages(messages);
+    // delete le dernier msg du chat en utilisant le string du msg
+    chatDiv.innerHTML = chatDiv.innerHTML.replace(lastMessage + "<br>", "");
+  } else {
+    alert("Vous ne pouvez pas supprimer le dernier message car il n'a pas été envoyé par vous.");
+  }
+
+});
+
+
+
+</script>
+
+
+
+
+{% endblock content %}
